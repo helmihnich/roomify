@@ -12,8 +12,19 @@ function Upload({ onComplete }: UploadProps = {}) {
     const [isDragging, setIsDragging] = useState(false)
     const [progress, setProgress] = useState(0)
 
+    const [base64, setBase64] = useState<string | null>(null)
+
     // @ts-ignore
     const {isSignedIn} = useOutletContext<AuthContext>()
+
+    React.useEffect(() => {
+        if (progress >= 100 && base64) {
+            const timer = setTimeout(() => {
+                if (onComplete) onComplete(base64)
+            }, REDIRECT_DELAY_MS)
+            return () => clearTimeout(timer)
+        }
+    }, [progress, base64, onComplete])
 
     const processFile = (selectedFile: File) => {
         if (!isSignedIn) return
@@ -22,14 +33,12 @@ function Upload({ onComplete }: UploadProps = {}) {
         const reader = new FileReader()
         reader.onloadend = () => {
             const base64Data = reader.result as string
+            setBase64(base64Data)
             const intervalId = setInterval(() => {
                 setProgress(prev => {
                     const nextProgress = prev + PROGRESS_STEP
                     if (nextProgress >= 100) {
                         clearInterval(intervalId)
-                        setTimeout(() => {
-                            if (onComplete) onComplete(base64Data)
-                        }, REDIRECT_DELAY_MS)
                         return 100
                     }
                     return nextProgress

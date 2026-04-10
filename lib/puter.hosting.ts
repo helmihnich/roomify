@@ -30,12 +30,12 @@ export const uploadImageToHosting = async ({hosting, url, projectId, label}: Sto
         const contentType = resolved.contentType || resolved.blob.type || ""
         const ext = getImageExtension(contentType,url)
         const dir = `projects/${projectId}`
-        const filePath = `dir/${label}.${ext}`
+        const filePath = `${dir}/${label}.${ext}`
 
         const uploadFile= new File([resolved.blob], `${label}.${ext}`, {type: contentType})
 
         await puter.fs.mkdir(dir, {createMissingParents: true})
-        await puter.fs.write(filePath, uploadFile)
+        await puter.fs.write(filePath, uploadFile, { overwrite: true })
 
         const hostedUrl= getHostedUrl({subdomain:hosting.subdomain}, filePath)
 
