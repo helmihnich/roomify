@@ -1,5 +1,5 @@
 import { CheckCircle2, ImageIcon, UploadIcon } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useOutletContext } from 'react-router'
 import { PROGRESS_INTERVAL_MS, PROGRESS_STEP, REDIRECT_DELAY_MS } from '../lib/constants'
 
@@ -11,6 +11,7 @@ function Upload({ onComplete }: UploadProps = {}) {
     const [file, setFile] = useState<File | null>(null)
     const [isDragging, setIsDragging] = useState(false)
     const [progress, setProgress] = useState(0)
+    const hasCompletedRef = useRef(false)
 
     const [base64, setBase64] = useState<string | null>(null)
 
@@ -18,7 +19,8 @@ function Upload({ onComplete }: UploadProps = {}) {
     const {isSignedIn} = useOutletContext<AuthContext>()
 
     React.useEffect(() => {
-        if (progress >= 100 && base64) {
+        if (progress >= 100 && base64 && !hasCompletedRef.current) {
+            hasCompletedRef.current = true
             const timer = setTimeout(() => {
                 if (onComplete) onComplete(base64)
             }, REDIRECT_DELAY_MS)
@@ -28,6 +30,9 @@ function Upload({ onComplete }: UploadProps = {}) {
 
     const processFile = (selectedFile: File) => {
         if (!isSignedIn) return
+        hasCompletedRef.current = false
+        setProgress(0)
+        setBase64(null)
         setFile(selectedFile)
 
         const reader = new FileReader()

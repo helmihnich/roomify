@@ -85,7 +85,7 @@ export default function Home() {
         </div>
         <div className="projects-grid">
           {project.map(({id, name, renderedImage, sourceImage,timestamp}) =>(
-          <div className="project-card group">
+          <div key={id} className="project-card group">
             <div className="preview">
               <img src={renderedImage || sourceImage }alt="Project" />
               <div className="badge">
