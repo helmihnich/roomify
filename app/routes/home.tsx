@@ -4,6 +4,8 @@ import type { Route } from "./+types/home";
 import { Button } from "../../components/ui/Button";
 import Upload from "../../components/upload";
 import { useNavigate } from "react-router";
+import { useState } from "react";
+import { createProject } from "../../lib/puter.action";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,11 +16,32 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const [project, setProjects] = useState<DesignItem[]>([])
 
   const handleUploadComplete = async(base64Image: string)=>{
     const newId = new Date().toString()
+    const name = `Residence ${newId}`;
+
+    const newItem = {
+      id: newId, name, sourceImage: base64Image, renderedImage: undefined, timestamp: Date.now()
+    }
+
+    const saved = await createProject({item: newItem, visibility: "private"})
+
+    if(!saved){
+      console.error('Failed to create project')
+      return false
+    }
+
+    setProjects((prev) => [newItem, ...prev])
     
-    navigate(`/visualizer/${newId}`)
+    navigate(`/visualizer/${newId}`, {
+      state: {
+        initialImage: saved.sourceImage,
+        initialRendered: saved.renderedImage || null,
+        name
+      }
+    })
     
     return true
   }
