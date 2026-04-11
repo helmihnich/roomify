@@ -33,7 +33,7 @@ export default function Home() {
       return false
     }
 
-    setProjects((prev) => [newItem, ...prev])
+    setProjects((prev) => [saved, ...prev])
     
     navigate(`/visualizer/${newId}`, {
       state: {
@@ -94,7 +94,7 @@ export default function Home() {
             </div>
             <div className="card-body">
               <div className="">
-                <h3>{name}</h3>
+                <h3>{name || "Untitled project"}</h3>
                 <div className="meta">
                   <Clock size={12}/>
                   <span>{new Date(timestamp).toLocaleDateString()}</span>

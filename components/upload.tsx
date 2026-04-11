@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router'
 import { PROGRESS_INTERVAL_MS, PROGRESS_STEP, REDIRECT_DELAY_MS } from '../lib/constants'
 
 interface UploadProps {
-    onComplete?: (data: string) => void
+    onComplete?: (base64File: string) => Promise<boolean | void> | boolean | void
 }
 
 function Upload({ onComplete }: UploadProps = {}) {
@@ -21,8 +21,14 @@ function Upload({ onComplete }: UploadProps = {}) {
     React.useEffect(() => {
         if (progress >= 100 && base64 && !hasCompletedRef.current) {
             hasCompletedRef.current = true
-            const timer = setTimeout(() => {
-                if (onComplete) onComplete(base64)
+            const timer = setTimeout(async () => {
+                if (onComplete) {
+                    try {
+                        await onComplete(base64)
+                    } catch (error) {
+                        console.error('Upload complete handler failed', error)
+                    }
+                }
             }, REDIRECT_DELAY_MS)
             return () => clearTimeout(timer)
         }
