@@ -19,7 +19,7 @@ export default function Home() {
   const [project, setProjects] = useState<DesignItem[]>([])
 
   const handleUploadComplete = async(base64Image: string)=>{
-    const newId = new Date().toString()
+    const newId = Date.now().toString()
     const name = `Residence ${newId}`;
 
     const newItem = {
