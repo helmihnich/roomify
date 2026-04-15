@@ -34,7 +34,7 @@ const VisualizerId = () => {
           ...item,
           renderedImage: result.renderedImage,
           renderedPath: result.renderedPath,
-          timeStamp: Date.now(),
+          timestamp: Date.now(),
           ownerId: item.ownerId ?? userId ?? null,
           isPublic: item.isPublic ?? false
         }

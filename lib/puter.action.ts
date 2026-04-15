@@ -31,8 +31,8 @@ export const createProject = async({item, visibility= 'private'}: CreateProjectP
     const hostedRender = projectId && item.renderedImage ? 
         await uploadImageToHosting({ hosting, url: item.renderedImage, projectId, label: "rendered" }) : null
 
-    const resolvedSource = hostedSource?.url || (isHostedUrl(item.sourceImage)) ? 
-        item.sourceImage : ''
+    const resolvedSource = hostedSource?.url || (isHostedUrl(item.sourceImage) ? 
+        item.sourceImage : '');
     
     if(!resolvedSource) {
         console.warn('Failed to host source image, skipping save.')
@@ -98,7 +98,7 @@ export const getProjets = async () =>{
 
 export const getProjectById = async ({ id }: { id: string }) => {
     if (!PUTER_WORKER_URL) {
-        console.warn("Missing VITE_PUTER_WORKER_URL; skipping project fetch.");
+        console.warn("Missing PUTER_WORKER_URL; skipping project fetch.");
         return null;
     }
 
