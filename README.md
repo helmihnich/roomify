@@ -1,18 +1,17 @@
-# Welcome to React Router!
+# Roomify 2.0
 
-A modern, production-ready template for building full-stack React applications using React Router.
+**Build beautiful spaces at the speed of thought with Roomify.**
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Roomify is an AI-first design environment that helps you visualize, render, and ship architecture projects faster than ever. Upload your floor plans (JPG, PNG) and quickly render them.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- **AI-Powered Visualization:** Instantly render and visualize architecture projects.
+- **Drag & Drop Upload:** Easy upload for your floor plans or design images.
+- **Project Management:** Keeps track of your latest work and shared community projects, allowing you to re-visit previously rendered images.
+- **Puter.js Integration:** Saves projects and assets effortlessly using Puter's cloud key-value store and hosting.
+- **Image Export:** Once you have your rendered image, export it locally with a click of a button.
+- **Modern Tech Stack:** Built on modern web technologies including React Router 7, Vite, and Tailwind CSS.
 
 ## Getting Started
 
@@ -26,7 +25,7 @@ npm install
 
 ### Development
 
-Start the development server with HMR:
+Start the development server with Hot Module Replacement (HMR):
 
 ```bash
 npm run dev
@@ -42,46 +41,16 @@ Create a production build:
 npm run build
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
+Then you can serve it with:
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+npm run start
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+## Styling & Components
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+Roomify uses **Tailwind CSS** for easy, scalable styling, and relies on semantic, accessible UI components.
 
 ---
 
-Built with ❤️ using React Router.
+Built with ❤️ by Helmi Hnich using React Router.
