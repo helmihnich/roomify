@@ -1,37 +1,50 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useOutletContext, useParams } from 'react-router'
 import { generate3DView } from '../../lib/ai.action';
 import { Box, Download, RefreshCcw, Share2, X } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { createProject, getProjectById } from '../../lib/puter.action';
 
 const VisualizerId = () => {
   const navigate = useNavigate()
-  const location = useLocation();
   const { id } = useParams();
-  const state = location.state || {};
+  const {userId} = useOutletContext<AuthContext>()
+  const [project, setProject] = useState<DesignItem | null>(null)
+  const [isProjectLoading, setIsProjectLoading] = useState(true)
   
   const [projectData, setProjectData] = useState<{ initialImage?: string, initialRendered?: string, name?: string }>({});
 
   const hasInitialGenerated = useRef(false)
 
   const [isProcessing, setIsProcessing] = useState(false)
-  const [currentImage, setCurrentImage] = useState<string | null>(state.initialRendered || null)
+  const [currentImage, setCurrentImage] = useState<string | null>(null)
 
   const handleBack = () => navigate('/')
 
-  const initialImage = state.initialImage || projectData.initialImage;
 
-  const runGeneration = async () =>{
-    if(!initialImage) return;
+  const runGeneration = async (item: DesignItem) =>{
+    if(!id || !item.sourceImage) return;
 
-    try {
-      console.log("heeeeeeeeeeere");
-      
+    try {      
       setIsProcessing(true)
-      const result = await generate3DView({sourceImage: initialImage})
-      console.log(result)
+      const result = await generate3DView({sourceImage: item.sourceImage})
       if(result.renderedImage){
         setCurrentImage(result.renderedImage)
+        const updateItem ={
+          ...item,
+          renderedImage: result.renderedImage,
+          renderedPath: result.renderedPath,
+          timeStamp: Date.now(),
+          ownerId: item.ownerId ?? userId ?? null,
+          isPublic: item.isPublic ?? false
+        }
+
+        const saved = await createProject({item: updateItem, visibility: "private"})
+
+        if(saved){
+          setProject(saved)
+          setCurrentImage(saved.renderedImage || result.renderedImage)
+        }
       }
     } catch (e) {
       console.error("Generation failed", e)
@@ -40,45 +53,51 @@ const VisualizerId = () => {
     }
   }
 
+    useEffect(() => {
+    let isMounted = true;
+
+    const loadProject = async () => {
+      if (!id) {
+        setIsProjectLoading(false);
+        return;
+      }
+
+      setIsProjectLoading(true);
+
+      const fetchedProject = await getProjectById({ id });
+
+      if (!isMounted) return;
+
+      setProject(fetchedProject);
+      setCurrentImage(fetchedProject?.renderedImage || null);
+      setIsProjectLoading(false);
+      hasInitialGenerated.current = false;
+    };
+
+    loadProject();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
   useEffect(() => {
-    if (!state.initialImage && id) {
-      const fetchProject = async () => {
-        try {
-          // Fallback to fetch project by id
-          const res = await fetch(`/api/projects/${id}`);
-          if (res.ok) {
-            const data = await res.json();
-            setProjectData({
-              initialImage: data.sourceImage || data.initialImage,
-              initialRendered: data.renderedImage,
-              name: data.name
-            });
-            if (data.renderedImage) {
-              setCurrentImage(data.renderedImage);
-            }
-          }
-        } catch (err) {
-          console.error('Failed to fetch project data:', err);
-        }
-      };
-      fetchProject();
+    if (
+      isProjectLoading ||
+      hasInitialGenerated.current ||
+      !project?.sourceImage
+    )
+      return;
+
+    if (project.renderedImage) {
+      setCurrentImage(project.renderedImage);
+      hasInitialGenerated.current = true;
+      return;
     }
-  }, [id, state.initialImage]);
 
-  const targetRendered = state.initialRendered || projectData.initialRendered;
-
-  useEffect(()=>{
-    if(!initialImage || hasInitialGenerated.current) return;
-    
     hasInitialGenerated.current = true;
-    
-    if (targetRendered) {
-      setCurrentImage(targetRendered);
-    } else {
-      runGeneration();
-    }
-  }, [initialImage, targetRendered])
-  const name = state.name || projectData.name;
+    void runGeneration(project);
+  }, [project, isProjectLoading]);
 
   return (
     <div className="visualizer">
@@ -97,7 +116,7 @@ const VisualizerId = () => {
           <div className="panel-header">
             <div className="panel-meta">
               <p>Project</p>
-              <h2>{'Untitled Project'}</h2>
+              <h2>{project?.name || `Residence ${id}`}</h2>
               <p className='note'>Created by you</p>
             </div>
             <div className="panel-actions">
@@ -127,8 +146,8 @@ const VisualizerId = () => {
               ) : (
                 <div className="render-placeholder">
                   {
-                    initialImage && (
-                      <img src={initialImage} alt="original" className='render-fallback' />
+                    project?.sourceImage && (
+                      <img src={project.sourceImage} alt="original" className='render-fallback' />
                     )
                   }
                 </div>
